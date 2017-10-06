@@ -43,7 +43,10 @@ class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 		self.isRescrape = kwargs[ "isRescrape" ]
 		
 		self.doModal()
-		
+
+	def getSelectedRomCollectionName(self):
+		control = self.getControlById(CONTROL_LIST_ROMCOLLECTIONS)
+		return str(control.getSelectedItem().getLabel())
 	
 	def onInit(self):
 		log.info('onInit ImportOptions')
@@ -102,9 +105,8 @@ class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 						
 			#HACK: add a little wait time as XBMC needs some ms to execute the MoveUp/MoveDown actions from the skin
 			xbmc.sleep(util.WAITTIME_UPDATECONTROLS)
-			
-			control = self.getControlById(CONTROL_LIST_ROMCOLLECTIONS)
-			selectedRomCollection = str(control.getSelectedItem().getLabel())			
+
+			selectedRomCollection = self.getSelectedRomCollection()
 			
 			#set initial scraper values
 			sitesInRomCollection = []
@@ -134,21 +136,10 @@ class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 	
 	def addItemsToList(self, controlId, options):
 		control = self.getControlById(controlId)
-		control.setVisible(1)
+		control.setVisible(True)
 		control.reset()
-				
-		items = []
-		for option in options:
-			items.append(xbmcgui.ListItem(option, '', '', ''))
-							
-		control.addItems(items)
-		
-		
-	def setRadioButtonValue(self, controlId, setting):
-		control = self.getControlById(controlId)		
-		value = self.gui.Settings.getSetting(setting).upper() == 'TRUE'
-		control.setSelected(value)
-	
+
+		control.addItems(options)
 	
 	def getAvailableScrapers(self):
 		#Scrapers
@@ -206,11 +197,7 @@ class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 		
 		
 	def setScrapersInConfig(self):
-		
-		#read selected Rom Collection
-		control = self.getControlById(CONTROL_LIST_ROMCOLLECTIONS)
-		romCollItem = control.getSelectedItem()
-		selectedRC = romCollItem.getLabel()
+		selectedRC = self.getSelectedRomCollectionName()
 		
 		if(self.romCollections != None):
 			romCollections = self.romCollections
