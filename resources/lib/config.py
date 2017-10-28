@@ -1032,3 +1032,33 @@ class Config(object):
 				return rcval
 
 		return None
+
+	def getScraperSiteNames(self):
+		"""
+		Returns: an alphabetically-sorted list of Scraper Site names, suitable for a UI list
+
+		"""
+		sites = []
+		for rckey, rcval in self.scraperSites.iteritems():
+			sites.append(rcval.name)
+
+		sites.sort()
+
+		return sites
+
+	def getScraperSiteByName(self, name):
+		"""
+		Find the matching Scraper Site by Name
+
+		Args:
+		    name: the name of the Scraper Site to be found
+
+		Returns:
+		    The Scraper Site with the matching name, or None if not found
+
+		"""
+		for rckey, rcval in self.scraperSites.iteritems():
+			if rcval.name == name:
+				return rcval
+
+		return None

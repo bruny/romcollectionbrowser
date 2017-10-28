@@ -29,10 +29,13 @@ CONTROL_BUTTON_SCRAPEMODE_UP = 5222
 
 CONTROL_BUTTON_OVERWRITESETTINGS = 5330
 
+SCRAPER_SITE_NONE = 32854
+SCRAPER_SITE_LOCALARTWORK = 32153
 
 class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 	
 	selectedControlId = 0
+	scrapersites = [util.localize(SCRAPER_SITE_NONE), util.localize(SCRAPER_SITE_LOCALARTWORK), 'mobygames.com', 'giantbomb.com', 'thegamesdb.net', 'archive.vg']
 	
 	def __init__(self, *args, **kwargs):
 		# Don't put GUI sensitive stuff here (as the xml hasn't been read yet)
@@ -142,15 +145,10 @@ class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 		control.addItems(options)
 	
 	def getAvailableScrapers(self):
-		#Scrapers
-		sitesInList = [util.localize(32854), util.localize(32153)]
-		#get all scrapers
-		scrapers = self.gui.config.tree.findall('Scrapers/Site')
-		for scraper in scrapers:
-			name = scraper.attrib.get('name')
-			if(name != None):
-				sitesInList.append(name)
-				
+		# Scrapers
+		sitesInList = [util.localize(SCRAPER_SITE_NONE), util.localize(SCRAPER_SITE_LOCALARTWORK)]
+		sitesInList.extend(self.gui.config.getScraperSiteNames())
+
 		return sitesInList
 	
 	
@@ -245,7 +243,7 @@ class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 		scraperItem = control.getSelectedItem()
 		scraper = scraperItem.getLabel()
 		
-		if(scraper == util.localize(32854)):
+		if scraper == util.localize(SCRAPER_SITE_NONE):
 			return sites, True
 		
 		#HACK: don't use other scrapers than MAME and local nfo for MAME collections
@@ -254,12 +252,8 @@ class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 			if(scraper != util.localize(32154) and scraper != util.localize(32153) and not bool(re.search('(?i)mame', scraper))):
 				scraper = 'maws.mameworld.info'
 				
-		siteRow = None
-		siteRows = self.gui.config.tree.findall('Scrapers/Site')
-		for element in siteRows:
-			if(element.attrib.get('name') == scraper):
-				siteRow = element
-				break
+		siteRow = self.gui.config.getScraperSiteByName(scraper)
+		log.debug("Searching for site {0}, found {1}".format(scraper, siteRow))
 				
 		if(scraper != util.localize(32153)):
 			if(siteRow == None):
