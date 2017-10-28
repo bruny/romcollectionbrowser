@@ -31,6 +31,7 @@ CONTROL_BUTTON_OVERWRITESETTINGS = 5330
 
 SCRAPER_SITE_NONE = 32854
 SCRAPER_SITE_LOCALARTWORK = 32153
+SCRAPER_SITE_LOCALNFO = 32154
 
 class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 	
@@ -248,14 +249,15 @@ class ImportOptionsDialog(xbmcgui.WindowXMLDialog):
 		
 		#HACK: don't use other scrapers than MAME and local nfo for MAME collections
 		#HACK2: check if scraper name contains mame
-		if(romCollection.name == 'MAME'):
-			if(scraper != util.localize(32154) and scraper != util.localize(32153) and not bool(re.search('(?i)mame', scraper))):
+		if romCollection.name == 'MAME':
+			if scraper != util.localize(SCRAPER_SITE_LOCALNFO) and scraper != util.localize(SCRAPER_SITE_LOCALARTWORK) and not bool(re.search('(?i)mame', scraper)):
 				scraper = 'maws.mameworld.info'
 				
 		siteRow = self.gui.config.getScraperSiteByName(scraper)
 		log.debug("Searching for site {0}, found {1}".format(scraper, siteRow))
 				
-		if(scraper != util.localize(32153)):
+		if scraper != util.localize(SCRAPER_SITE_LOCALARTWORK):
+			# Handle 'local artwork' scraper
 			if(siteRow == None):
 				xbmcgui.Dialog().ok(util.localize(32021), util.localize(32022) %scraper)
 				return None, False
